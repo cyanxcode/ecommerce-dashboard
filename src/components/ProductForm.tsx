@@ -15,6 +15,7 @@ import {
 import { useState } from "react"
 import { db } from "@/lib/firebase"
 import { collection, addDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 export default function ProductForm(){
 const [formData, setFormData] = useState({
@@ -26,16 +27,62 @@ const [formData, setFormData] = useState({
     color: '',
     group: '',
     category: '',
+    images: '',
   });
+  const [selectedFile, setSelectedFile] = useState<any>(null);
+  const storage = getStorage();
 
+  const handleFileChange = (event: any) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+
+  const handleUpload = async () => { 
+    if (!selectedFile) {
+      alert('Please select an image file.');
+      return;
+    }else{
+      const storageRef = ref(storage, selectedFile.name);
+      const uploadTask = uploadBytesResumable(storageRef, selectedFile);  
+      uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        // No need to track progress here
+      },
+      (error) => {
+        console.error('Upload failed:', error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL: any) => {
+
+          // Save the image URL to Firestore
+          setFormData({ ...formData, ["images"]: downloadURL });
+          
+        });
+      }
+    );
+    }
+  }
 
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    handleUpload();
     const docRef = addDoc(collection(db, formData.category), formData);
     console.log(docRef);
+    setFormData({
+      title: '',
+      price: '',
+      description: '',
+      fabric: '',
+      type: '',
+      color: '',
+      group: '',
+      category: '',
+      images: '',
+    })
   }
 
     return <>
@@ -98,7 +145,7 @@ const [formData, setFormData] = useState({
       </div>
       <div className="grid w-full max-w-sm items-center gap-1.5">
         <Label htmlFor="picture">Picture</Label>
-        <Input id="picture" type="file" placeholder=""/>
+        <Input id="picture" type="file" accept="image/*"  onChange={handleFileChange} placeholder=""/>
       </div>
       <Button className="mt-2" type="submit" onClick={handleSubmit}>Submit</Button>
 
