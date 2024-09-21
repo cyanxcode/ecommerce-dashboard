@@ -46,7 +46,7 @@ const [formData, setFormData] = useState({
       const uploadTask = uploadBytesResumable(storageRef, selectedFile);  
       uploadTask.on(
       'state_changed',
-      (snapshot) => {
+      () => {
         // No need to track progress here
       },
       (error) => {
@@ -54,10 +54,9 @@ const [formData, setFormData] = useState({
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL: any) => {
-
-          // Save the image URL to Firestore
-          setFormData({ ...formData, ["images"]: downloadURL });
-          
+        const newURL = downloadURL.substring(downloadURL.lastIndexOf('/') + 1);
+        const finalURL = newURL.substring(0, newURL.lastIndexOf('?'));
+          setFormData({ ...formData, ["images"]: fianlURL });
         });
       }
     );
