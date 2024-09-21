@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select"
 import { useState } from "react"
 import { db } from "@/lib/firebase"
-import { collection, addDoc, setDoc, doc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function ProductForm(){
 const [formData, setFormData] = useState({

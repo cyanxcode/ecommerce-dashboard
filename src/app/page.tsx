@@ -1,7 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ProductForm from "@/components/ProductForm"
-import { db } from "@/lib/firebase"
-import { collection, addDoc } from "firebase/firestore";
 
 export default async function Home(){
 
