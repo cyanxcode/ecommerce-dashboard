@@ -67,10 +67,11 @@ const [formData, setFormData] = useState({
           const x = imageUrls;
           x.push(finalURL);
           setImageUrls(x);
+
+          setFormData({ ...formData, ["images"]: x });
         });
       }
     );
-    setFormData({ ...formData, ["images"]: imageUrls });
 
     alert("Uploaded");
   }
