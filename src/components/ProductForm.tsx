@@ -1,3 +1,4 @@
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:3237365040.
 "use client"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,7 +17,6 @@ import { useState } from "react"
 import { db } from "@/lib/firebase"
 import { collection, addDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { set } from "firebase/database"
 
 export default function ProductForm(){
 const [formData, setFormData] = useState({
@@ -33,7 +33,6 @@ const [formData, setFormData] = useState({
   const [selectedFile, setSelectedFile] = useState<any>([]);
   const storage = getStorage();
   const [imageUrls, setImageUrls] = useState<any>([]);
-  const [currentURL, setCurrentURL] = useState("");
 
   const handleFileChange = (e: any) => {
     const files = Array.from(e.target.files);
