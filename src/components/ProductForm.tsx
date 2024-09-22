@@ -16,6 +16,7 @@ import { useState } from "react"
 import { db } from "@/lib/firebase"
 import { collection, addDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { set } from "firebase/database"
 
 export default function ProductForm(){
 const [formData, setFormData] = useState({
@@ -27,23 +28,30 @@ const [formData, setFormData] = useState({
     color: '',
     group: '',
     category: '',
-    images: '',
+    images: [],
   });
-  const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [selectedFile, setSelectedFile] = useState<any>([]);
   const storage = getStorage();
+  const [imageUrls, setImageUrls] = useState<any>([]);
+  const [currentURL, setCurrentURL] = useState("");
 
-  const handleFileChange = (event: any) => {
-    setSelectedFile(event.target.files[0]);
+  const handleFileChange = (e: any) => {
+    const files = Array.from(e.target.files);
+    setSelectedFile(files);
   };
 
 
-  const handleUpload = async () => { 
-    if (!selectedFile) {
+  const handleUpload = (e: any) => { 
+    e.preventDefault();
+    if (selectedFile == 0) {
       alert('Please select an image file.');
       return;
     }else{
-      const storageRef = ref(storage, selectedFile.name);
-      const uploadTask = uploadBytesResumable(storageRef, selectedFile);  
+      for(const image of selectedFile){
+      const storageRef = ref(storage, image.name);
+      const uploadTask = uploadBytesResumable(storageRef, image);  
+      
+    
       uploadTask.on(
       'state_changed',
       () => {
@@ -54,13 +62,20 @@ const [formData, setFormData] = useState({
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL: any) => {
-        const newURL = downloadURL.substring(downloadURL.lastIndexOf('/') + 1);
-        const finalURL = newURL.substring(0, newURL.lastIndexOf('?'));
-          setFormData({ ...formData, ["images"]: finalURL });
+          console.log(downloadURL);
+          const newURL = downloadURL.substring(downloadURL.lastIndexOf('/') + 1);
+          const finalURL = newURL.substring(0, newURL.lastIndexOf('?'));
+          const x = imageUrls;
+          x.push(finalURL);
+          setImageUrls(x);
         });
       }
     );
-    }
+    setFormData({ ...formData, ["images"]: imageUrls });
+
+    alert("Uploaded");
+  }
+  }
   }
 
   const handleChange = (e: any) => {
@@ -68,8 +83,8 @@ const [formData, setFormData] = useState({
   }
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    handleUpload();
     const docRef = addDoc(collection(db, formData.category), formData);
+    console.log(formData);
     console.log(docRef);
     setFormData({
       title: '',
@@ -80,8 +95,9 @@ const [formData, setFormData] = useState({
       color: '',
       group: '',
       category: '',
-      images: '',
+      images: [],
     })
+    setSelectedFile([]);
   }
 
     return <>
@@ -136,7 +152,9 @@ const [formData, setFormData] = useState({
             <SelectGroup>
               <SelectLabel>Select a category</SelectLabel>
               <SelectItem value="oversized">Oversized</SelectItem>
-              <SelectItem value="tshirt">Tshirt</SelectItem>
+              <SelectItem value="round">Round Neck Tshirt</SelectItem>
+              <SelectItem value="polo">Polo Neck Tshirt</SelectItem>
+              <SelectItem value="kurta">Kurta</SelectItem>
               <SelectItem value="pajama">Pajama</SelectItem>
             </SelectGroup>
           </SelectContent>
@@ -144,8 +162,9 @@ const [formData, setFormData] = useState({
       </div>
       <div className="grid w-full max-w-sm items-center gap-1.5">
         <Label htmlFor="picture">Picture</Label>
-        <Input id="picture" type="file" accept="image/*"  onChange={handleFileChange} placeholder=""/>
+        <Input id="picture" multiple type="file" accept="image/*" onChange={handleFileChange} placeholder=""/>
       </div>
+      <Button className="mt-2" type="submit" onClick={handleUpload}>Upload</Button>
       <Button className="mt-2" type="submit" onClick={handleSubmit}>Submit</Button>
 
     </form></>
