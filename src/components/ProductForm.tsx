@@ -62,10 +62,10 @@ const [formData, setFormData] = useState({
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL: any) => {
           console.log(downloadURL);
-          const newURL = downloadURL.substring(downloadURL.lastIndexOf('/') + 1);
-          const finalURL = newURL.substring(0, newURL.lastIndexOf('?'));
+          //const newURL = downloadURL.substring(downloadURL.lastIndexOf('/') + 1);
+          //const finalURL = newURL.substring(0, newURL.lastIndexOf('?'));
           const x = imageUrls;
-          x.push(finalURL);
+          x.push(downloadURL);
           setImageUrls(x);
 
           setFormData({ ...formData, ["images"]: x });
